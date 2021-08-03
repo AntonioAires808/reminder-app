@@ -1,4 +1,5 @@
 import { animate, style, transition, trigger, query, stagger } from '@angular/animations';
+import { getQueryPredicate } from '@angular/compiler/src/render3/view/util';
 import { Component, OnInit } from '@angular/core';
 import { Card } from 'src/app/shared/card.model';
 import { CardsService } from 'src/app/shared/cards.service';
@@ -84,17 +85,58 @@ import { CardsService } from 'src/app/shared/cards.service';
 export class ReminderListComponent implements OnInit {
 
   cards: Card[] = new Array<Card>();
+  filteredCards: Card[] = new Array<Card>();
 
   constructor(private cardsService: CardsService) { }
 
   ngOnInit() {
     // Retrive all notes from the service
     this.cards = this.cardsService.getAll();
+
+    this.filteredCards = this.cards;
   }
 
   deleteCard(id: number) {
     this.cardsService.delete(id);
   }
-}
 
-//test commit
+  // Filter the reminders
+
+  filter(query: string) {
+    query = query.toLowerCase().trim();
+
+    let allResults: Card[] = new Array<Card>();
+    let terms: string[] = query.split(' ');
+
+    terms = this.removeDuplicates(terms);
+    terms.forEach(term => {
+      let results: Card[] = this.relevantCards(term);
+      allResults = [...allResults, ...results]
+    });
+
+    let uniqueResults = this.removeDuplicates(allResults);
+    this.filteredCards = uniqueResults;
+  }
+
+  removeDuplicates(arr: Array<any>) : Array<any> {
+    let uniqueResults: Set<any> = new Set<any>();
+    arr.forEach(e => uniqueResults.add(e));
+
+    return Array.from(uniqueResults);
+  }
+
+  relevantCards(query: string) : Array<Card> {
+    query = query.toLowerCase().trim();
+    let relevantCards = this.cards.filter(card => {
+      if (card.title && card.title.toLowerCase().includes(query)) {
+        return true;
+      }
+      if (card.body && card.body.toLowerCase().includes(query)) {
+        return true;
+      }
+      return false;
+    }) 
+
+    return relevantCards;
+  }
+}
