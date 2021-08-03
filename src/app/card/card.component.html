@@ -1,0 +1,21 @@
+<div #container class="card-container">
+
+    <a [routerLink]="link">
+        <div class="card-content">
+            <h1 class="card-title">
+                {{ title }}
+            </h1>
+
+            <div #bodyText class="card-body">
+                <p>{{ body }}</p>        
+                <div #truncator class="fade-out-truncation">
+
+                </div>
+            </div>
+        </div>
+    </a>
+
+    
+
+    <div class="x-button" (click)="onXButtonClick()"></div>
+</div>
